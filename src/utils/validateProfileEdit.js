@@ -8,8 +8,10 @@ const validateEditProfile = (req) => {
     "lastName",
     "about",
     "skills",
+    "gender",
   ];
   const isValidToEdit = Object.keys(data).every((field) => {
+    console.log(field);
     return ALLOWED_UPDATES.includes(field);
   });
   return isValidToEdit;

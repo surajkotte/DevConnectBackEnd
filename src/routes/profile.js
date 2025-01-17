@@ -28,13 +28,14 @@ profileRouter.get("/profile/view", useAuth, async (req, res) => {
   }
 });
 
-profileRouter.get("/profile/edit", useAuth, async (req, res) => {
+profileRouter.post("/profile/edit", useAuth, async (req, res) => {
   try {
     if (!validateEditProfile(req)) {
       throw new Error("Fields cannot be edited");
     }
     const user = req.user;
     const data = req.body;
+    console.log(data);
     Object.keys(data).forEach((ele) => {
       user[ele] = data[ele];
     });
@@ -44,9 +45,9 @@ profileRouter.get("/profile/edit", useAuth, async (req, res) => {
       returnValidators: "true",
     });
     console.log(updatedInfo);
-    res.send("User updated");
+    res.json({ messageType: "S", message: "User updated" });
   } catch (err) {
-    res.status(400).send("Error :" + err.message);
+    res.status(400).json({ messageType: "S", message: err.message });
   }
 });
 
