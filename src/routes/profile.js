@@ -33,7 +33,7 @@ profileRouter.post("/profile/edit", useAuth, async (req, res) => {
     if (!validateEditProfile(req)) {
       throw new Error("Fields cannot be edited");
     }
-    const user = req.user;
+    let user = req.user;
     const data = req.body;
     console.log(data);
     Object.keys(data).forEach((ele) => {
@@ -44,7 +44,6 @@ profileRouter.post("/profile/edit", useAuth, async (req, res) => {
       returnDocument: "after",
       returnValidators: "true",
     });
-    console.log(updatedInfo);
     res.json({ messageType: "S", message: "User updated" });
   } catch (err) {
     res.status(400).json({ messageType: "S", message: err.message });

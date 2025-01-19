@@ -53,6 +53,12 @@ const userSchema = mongoose.Schema(
     skills: {
       type: [String],
     },
+    company: {
+      type: String,
+    },
+    designation: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
