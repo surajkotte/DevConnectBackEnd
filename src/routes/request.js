@@ -38,7 +38,7 @@ requestRoute.post(
       await connection.save();
       res.json({
         messageType: "s",
-        connection,
+        message: "Request sent successfully",
       });
     } catch (err) {
       res.status(400).json({
