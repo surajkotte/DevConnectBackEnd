@@ -4,7 +4,8 @@ const Connections = require("../models/connection");
 const userAuth = require("../middlewares/auth");
 const { set } = require("mongoose");
 const userRouter = express.Router();
-const ALLOWED_DATA = "firstName lastName age gender photoURL about skills";
+const ALLOWED_DATA =
+  "firstName lastName age gender photoURL about skills company designation";
 
 userRouter.get("/user/requests", userAuth, async (req, res) => {
   try {
@@ -14,10 +15,18 @@ userRouter.get("/user/requests", userAuth, async (req, res) => {
       status: "interested",
     }).populate("from", ALLOWED_DATA);
     console.log(connectionRequests);
-    if (!connectionRequests) {
+    const allConnections1 = connectionRequests.map((data) => {
+      return data?.from;
+    });
+    const allConnections = allConnections1.map((data, index) => {
+      data["_id"] = connectionRequests[index]._id;
+      return data;
+    });
+    console.log(allConnections);
+    if (!allConnections) {
       throw new Error("No connection requests found");
     }
-    res.json({ messageType: "S", data: connectionRequests });
+    res.json({ messageType: "S", data: allConnections });
   } catch (err) {
     res.status(400).json({ messageType: "E", message: err.message });
   }
@@ -30,11 +39,14 @@ userRouter.get("/user/pendingrequests", userAuth, async (req, res) => {
       from: loggedInUser?._id,
       status: "interested",
     }).populate("to", ALLOWED_DATA);
-    console.log(connectionRequests);
-    if (!connectionRequests) {
+    const allConnections = connectionRequests.map((data) => {
+      return data?.to;
+    });
+    console.log(allConnections);
+    if (!allConnections) {
       throw new Error("No connection requests found");
     }
-    res.json({ messageType: "S", data: connectionRequests });
+    res.json({ messageType: "S", data: allConnections });
   } catch (err) {
     res.status(400).json({ messageType: "E", message: err.message });
   }

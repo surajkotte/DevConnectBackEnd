@@ -61,6 +61,8 @@ requestRoute.post(
       }
       const user = req.user;
       const connectionRequest = await Connections.findById(userId);
+      console.log(userId);
+      console.log(connectionRequest);
       if (!connectionRequest) {
         throw new Error("Invalid connection request");
       }
