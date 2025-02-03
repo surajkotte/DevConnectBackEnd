@@ -59,9 +59,45 @@ const userSchema = mongoose.Schema(
     designation: {
       type: String,
     },
+    education: {
+      type: [
+        {
+          institution: { type: String },
+          degree: { type: String },
+          fieldOfStudy: { type: String },
+          startDate: { type: Date },
+          endDate: { type: Date },
+        },
+      ],
+    },
+    experiance: {
+      type: [
+        {
+          company: { type: String },
+          designation: { type: String },
+          startDate: { type: Date },
+          endDate: { type: Date },
+          description: { type: String },
+        },
+      ],
+    },
+    gitHubURL: {
+      type: String,
+    },
+    instagramURL: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
+userSchema.pre("save", function (next) {
+  if (this.experience && this.experience.length > 1) {
+    this.experience.sort(
+      (a, b) => new Date(b.startDate) - new Date(a.startDate)
+    );
+  }
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 

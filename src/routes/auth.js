@@ -28,7 +28,8 @@ authRouter.post("/login", async (req, res) => {
           gender: userData?.gender,
           photoURL: userData?.photoURL,
           age: userData?.age,
-          skills:userData?.skills,
+          skills: userData?.skills,
+          education: userData?.education,
         },
       });
     } else {

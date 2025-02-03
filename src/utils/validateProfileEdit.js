@@ -11,6 +11,10 @@ const validateEditProfile = (req) => {
     "gender",
     "company",
     "designation",
+    "education",
+    "experiance",
+    "gitHubURL",
+    "instagramURL",
   ];
   const isValidToEdit = Object.keys(data).every((field) => {
     console.log(field);

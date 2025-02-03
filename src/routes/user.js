@@ -5,7 +5,7 @@ const userAuth = require("../middlewares/auth");
 const { set } = require("mongoose");
 const userRouter = express.Router();
 const ALLOWED_DATA =
-  "firstName lastName age gender photoURL about skills company designation";
+  "firstName lastName age gender photoURL about skills company designation education experiance gitHubURL instagramURL";
 
 userRouter.get("/user/requests", userAuth, async (req, res) => {
   try {
