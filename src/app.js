@@ -16,10 +16,12 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
+const messageRouter = require("./routes/message");
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", messageRouter);
 // app.get("/user/", async (req, res) => {
 //   const userId = req?.params?.userId;
 //   const userEmail = req.body.emailId;

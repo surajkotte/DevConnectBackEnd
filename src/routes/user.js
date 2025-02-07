@@ -68,9 +68,9 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     }
     const allConnections = connections.map((data) => {
       if (data?.from?._id.toString() === loggedInUser._id.toString()) {
-        return data?.to;
+        return { ...data?.to.toObject(), connectionId: data?._id };
       } else if (data?.to?._id.toString() === loggedInUser._id.toString()) {
-        return data?.from;
+        return { ...data?.from.toObject(), connectionId: data?._id };
       }
     });
     res.json({ messageType: "S", data: allConnections });
