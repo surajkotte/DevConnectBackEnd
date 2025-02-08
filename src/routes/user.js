@@ -14,7 +14,6 @@ userRouter.get("/user/requests", userAuth, async (req, res) => {
       to: loggedInUser?._id,
       status: "interested",
     }).populate("from", ALLOWED_DATA);
-    console.log(connectionRequests);
     const allConnections1 = connectionRequests.map((data) => {
       return data?.from;
     });
@@ -22,7 +21,6 @@ userRouter.get("/user/requests", userAuth, async (req, res) => {
       data["_id"] = connectionRequests[index]._id;
       return data;
     });
-    console.log(allConnections);
     if (!allConnections) {
       throw new Error("No connection requests found");
     }
@@ -42,7 +40,6 @@ userRouter.get("/user/pendingrequests", userAuth, async (req, res) => {
     const allConnections = connectionRequests.map((data) => {
       return data?.to;
     });
-    console.log(allConnections);
     if (!allConnections) {
       throw new Error("No connection requests found");
     }
@@ -86,7 +83,6 @@ userRouter.get("/user/allUsers", userAuth, async (req, res) => {
       $or: [{ from: loggedInUser._id }, { to: loggedInUser?._id }],
     }).select("from to");
     let uniqueConnections = new Set();
-    //console.log(connections);
     if (connections.length != 0) {
       connections.map((connectionInfo) => {
         uniqueConnections.add(connectionInfo?.from.toString());
@@ -94,14 +90,12 @@ userRouter.get("/user/allUsers", userAuth, async (req, res) => {
       });
     }
     let connections1 = [...uniqueConnections];
-    console.log(loggedInUser?._id);
     const remainingConnections = await User.find({
       $and: [
         { _id: { $nin: Array.from(connections1) } },
         { _id: { $ne: loggedInUser?._id } },
       ],
     }).select(ALLOWED_DATA);
-    console.log(remainingConnections);
     res.json({ messageType: "S", data: remainingConnections });
   } catch (err) {
     res.status(400).json({ messageType: "E", message: err.message });

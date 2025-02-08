@@ -18,7 +18,6 @@ messageRouter.get("/getMessages/:connectionId", userAuth, async (req, res) => {
         null,
         { sort: { timestamps: 1 } }
       );
-      console.log(connectionDetails);
       if (connectionDetails) {
         res.json({ messagetype: "S", data: connectionDetails });
       } else {
@@ -33,7 +32,6 @@ messageRouter.get("/getMessages/:connectionId", userAuth, async (req, res) => {
 messageRouter.post("/sendMessage/:connectionId", userAuth, async (req, res) => {
   const { from, to, message } = req.body;
   const { connectionId } = req.params;
-  console.log(connectionId + " " + from + " " + to + " " + message);
   try {
     const connection = await Connections.findById({ _id: connectionId });
     if (!connection) {

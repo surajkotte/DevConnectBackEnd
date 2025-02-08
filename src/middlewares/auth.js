@@ -4,12 +4,10 @@ const userAuth = async (req, res, next) => {
   const cookies = req.cookies;
   try {
     const { token } = cookies;
-    console.log(token);
     if (token == "j:null") {
       throw new Error("Please login");
     }
     const decodedObject = await JWT.verify(token, "DEV@CONNECT@69");
-    console.log(decodedObject);
     if (decodedObject) {
       const { id } = decodedObject;
       // console.log(decodedObject);

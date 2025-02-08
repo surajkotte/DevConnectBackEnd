@@ -35,7 +35,6 @@ profileRouter.post("/profile/edit", useAuth, async (req, res) => {
     }
     let user = req.user;
     const data = req.body;
-    console.log(data);
     Object.keys(data).forEach((ele) => {
       user[ele] = data[ele];
     });
