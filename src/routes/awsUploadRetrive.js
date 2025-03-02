@@ -7,7 +7,6 @@ const multer = require("multer");
 const FeedRouter = express.Router();
 const ALLOWED_DATA = "firstName lastName photoURL";
 const upload1 = multer({ storage: multer.memoryStorage() });
-
 FeedRouter.post(
   "/aws/upload",
   userAuth,
@@ -59,60 +58,89 @@ FeedRouter.get("/aws/getFeed", userAuth, async (req, res) => {
 
 FeedRouter.post("/feed/:action/:feedId", userAuth, async (req, res) => {
   const { action, feedId } = req.params;
-  const { userId } = req.body;
+  const { userId, comments } = req.body;
   try {
     const data = await likeModal.findOne({ feedId: feedId });
-    console.log(data);
-    if (data && data.length != 0) {
-      const userExistInLike = data["like"].find(
-        (info) => info.userId == userId
-      );
-      const userExistInDisLike = data["dislike"].find(
-        (info) => info.userId == userId
-      );
-      let newLikeData = [];
-      let newDisLikeData = [];
-      if (userExistInLike || userExistInDisLike) {
-        newLikeData = data["like"]?.filter((userInfo) => {
-          return userInfo?.userId.toString() != userId.toString();
+    if (data && data.length != 0 && data != null) {
+      if (action == "comment") {
+        data.comments.push({
+          comment: { commentText: comments, userId: userId },
+          reply: [],
         });
-        data["like"] = newLikeData;
-        data.likeCount = newLikeData.length;
-      }
-      if (userExistInDisLike) {
-        newDisLikeData = data["dislike"]?.filter((userInfo) => {
-          return userInfo?.userId.toString() != userId.toString();
+        data.commentCount += 1;
+        const response = await data.save();
+        res.json({ messageType: "S", data: response.commentCount });
+      } else {
+        const userExistInLike = data["like"].find(
+          (info) => info.userId == userId
+        );
+        const userExistInDisLike = data["dislike"].find(
+          (info) => info.userId == userId
+        );
+        let newLikeData = [];
+        let newDisLikeData = [];
+        if (userExistInLike || userExistInDisLike) {
+          newLikeData = data["like"]?.filter((userInfo) => {
+            return userInfo?.userId.toString() != userId.toString();
+          });
+          data["like"] = newLikeData;
+          data.likeCount = newLikeData.length;
+        }
+        if (userExistInDisLike) {
+          newDisLikeData = data["dislike"]?.filter((userInfo) => {
+            return userInfo?.userId.toString() != userId.toString();
+          });
+          data["dislike"] = newDisLikeData;
+          data.dislikeCount = newDisLikeData.length;
+        }
+        if (
+          (userExistInLike && action == "dislike") ||
+          (userExistInDisLike && action == "like") ||
+          (!userExistInDisLike && !userExistInLike)
+        ) {
+          data[`${action}`].push({ userId });
+          data.likeCount =
+            action == "like" ? data.likeCount + 1 : data.likeCount;
+          data.dislikeCount =
+            action == "dislike" ? data.dislikeCount + 1 : data.dislikeCount;
+        }
+        const response = await data.save();
+        res.json({
+          messageType: "S",
+          data: {
+            likeCount: response.likeCount,
+            dislikeCount: response.dislikeCount,
+          },
         });
-        data["dislike"] = newDisLikeData;
-        data.dislikeCount = newDisLikeData.length;
       }
-      if (
-        (userExistInLike && action == "dislike") ||
-        (userExistInDisLike && action == "like") ||
-        (!userExistInDisLike && !userExistInLike)
-      ) {
-        data[`${action}`].push({ userId });
-        data.likeCount = action == "like" ? data.likeCount + 1 : data.likeCount;
-        data.dislikeCount =
-          action == "dislike" ? data.dislikeCount + 1 : data.dislikeCount;
-      }
-      const response = await data.save();
-      res.json({
-        messageType: "S",
-        data: { likeCount: data.likeCount, dislikeCount: data.dislikeCount },
-      });
     } else {
+      console.log("here");
+      console.log(comments);
       const likeData = new likeModal({
         feedId: feedId,
         like: action === "like" ? [{ userId }] : [],
         dislike: action === "dislike" ? [{ userId }] : [],
         likeCount: action === "like" ? 1 : 0,
         dislikeCount: action === "dislike" ? 1 : 0,
+        comments:
+          action === "comment" && comments
+            ? [
+                {
+                  comment: { commentText: comments, userId: userId },
+                  reply: [],
+                },
+              ]
+            : [],
+        commentCount: action === "comment" && comments ? 1 : 0,
       });
       const response = await likeData.save();
       res.json({
         messageType: "S",
-        data: { likeCount: data.likeCount, dislikeCount: data.dislikeCount },
+        data: {
+          likeCount: response.likeCount,
+          dislikeCount: response.dislikeCount,
+          commentsCount: response.commentCount,
+        },
       });
     }
     // if (action == "like") {
@@ -158,7 +186,12 @@ FeedRouter.post("/feed/:action/:feedId", userAuth, async (req, res) => {
 FeedRouter.get("/feed/countInfo/:feedId", userAuth, async (req, res) => {
   const { feedId } = req.params;
   try {
-    const data = await likeModal.findOne({ feedId: feedId });
+    const data = await likeModal
+      .findOne({ feedId: feedId })
+      .populate("comments.comment.userId", ALLOWED_DATA)
+      .populate("comments.reply.userId", ALLOWED_DATA)
+      .populate("like.userId", ALLOWED_DATA)
+      .populate("dislike.userId", ALLOWED_DATA);
     res.json({ messageType: "S", data: data });
   } catch (err) {
     res.status(400).json({ messageType: "E", message: err.message });
@@ -166,3 +199,10 @@ FeedRouter.get("/feed/countInfo/:feedId", userAuth, async (req, res) => {
 });
 
 module.exports = FeedRouter;
+
+// comments: [
+//   {
+//     comment: [{ commentText: comments, userId: userId }],
+//     reply: [{ commentText: "", userId: "" }],
+//   },
+// ];

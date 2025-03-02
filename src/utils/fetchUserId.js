@@ -3,7 +3,7 @@ const fetchUserId = async (req) => {
   const cookie = req.cookies;
   try {
     const { token } = cookie;
-    const decodedObject = await JWT.verify(token, "DEV@CONNECT@69");
+    const decodedObject = await JWT.verify(token, process.env.JWT_SECRET);
     if (decodedObject) {
       const { id } = decodedObject;
       console.log(id);

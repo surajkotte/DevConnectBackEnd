@@ -16,7 +16,7 @@ authRouter.post("/login", async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, userData?.password);
     if (isPasswordValid) {
-      const token = await JWT.sign({ id: userData?._id }, "DEV@CONNECT@69", {
+      const token = await JWT.sign({ id: userData?._id }, process.env.JWT_SECRET, {
         expiresIn: "2h",
       });
       res.cookie("token", token);

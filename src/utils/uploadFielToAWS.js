@@ -18,7 +18,7 @@ const upload = async (file) => {
   };
   const fileName = cleanFileName(file.name);
   const params = {
-    Bucket: "mydevconnect",
+    Bucket: process.env.AWS_BUCKET_NAME,
     Key: fileName,
     Body: file.body,
     ContentType: file.type,

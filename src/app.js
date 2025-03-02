@@ -5,6 +5,7 @@ const app = express();
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
 const cookieParser = require("cookie-parser");
+require("dotenv").config();
 const cors = require("cors");
 app.use(
   cors({
@@ -32,7 +33,7 @@ app.use("/", FeedRouter);
 connectDB()
   .then(() => {
     console.log("Database connection successful");
-    server.listen(3000, () => {
+    server.listen(process.env.port, () => {
       console.log("Listening to server 3000");
     });
   })
