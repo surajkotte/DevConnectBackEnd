@@ -34,7 +34,8 @@ FeedRouter.post(
             contentText: textContent,
           },
         });
-        await feed.save();
+        const responseData = await feed.save();
+        response.data = responseData;
         res.json(response);
       }
     } catch (err) {
