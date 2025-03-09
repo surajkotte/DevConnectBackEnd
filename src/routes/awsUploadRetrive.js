@@ -14,6 +14,7 @@ FeedRouter.post(
   async (req, res) => {
     const textContent = req.body.details;
     const userId = req.body.userId;
+    const mediaType = req.body.mediaType;
     if (!req.file)
       return res
         .status(400)
@@ -29,6 +30,7 @@ FeedRouter.post(
         const decodedURL = decodeURIComponent(response?.data?.Location);
         const feed = new feedModel({
           userId: userId,
+          mediaType: mediaType,
           feedContent: {
             contentURL: decodedURL,
             contentText: textContent,
@@ -46,7 +48,10 @@ FeedRouter.post(
 
 FeedRouter.get("/aws/getFeed", userAuth, async (req, res) => {
   try {
-    const data = await feedModel.find().populate("userId", ALLOWED_DATA);
+    const data = await feedModel
+      .find()
+      .populate("userId", ALLOWED_DATA)
+      .sort({ createdAt: -1 });
     if (data.length == 0) {
       res.json({ messageType: "S", data: [] });
     } else {
@@ -115,8 +120,6 @@ FeedRouter.post("/feed/:action/:feedId", userAuth, async (req, res) => {
         });
       }
     } else {
-      console.log("here");
-      console.log(comments);
       const likeData = new likeModal({
         feedId: feedId,
         like: action === "like" ? [{ userId }] : [],
@@ -194,6 +197,23 @@ FeedRouter.get("/feed/countInfo/:feedId", userAuth, async (req, res) => {
       .populate("like.userId", ALLOWED_DATA)
       .populate("dislike.userId", ALLOWED_DATA);
     res.json({ messageType: "S", data: data });
+  } catch (err) {
+    res.status(400).json({ messageType: "E", message: err.message });
+  }
+});
+
+FeedRouter.post("/content/upload", userAuth, async (req, res) => {
+  const { userId, contentText, mediaType } = req.body;
+  try {
+    const feed = new feedModel({
+      userId: userId,
+      mediaType: mediaType,
+      feedContent: {
+        contentText: contentText,
+      },
+    });
+    const response = await feed.save();
+    res.json({ messageType: "S", data: response });
   } catch (err) {
     res.status(400).json({ messageType: "E", message: err.message });
   }
