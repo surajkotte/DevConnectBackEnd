@@ -21,6 +21,7 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const messageRouter = require("./routes/message");
 const FeedRouter = require("./routes/awsUploadRetrive");
+const PostRouter = require("./routes/Posts");
 const server = http.createServer(app);
 createSocketServer(server);
 app.use("/", authRouter);
@@ -29,7 +30,7 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", messageRouter);
 app.use("/", FeedRouter);
-
+app.use("/", PostRouter);
 connectDB()
   .then(() => {
     console.log("Database connection successful");
