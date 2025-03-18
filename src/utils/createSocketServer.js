@@ -10,7 +10,6 @@ const createSocketServer = (httpServer) => {
   });
   io.on("connection", (socket) => {
     socket.on("startConnection", ({ firstName, lastName, connectionId }) => {
-      console.log(connectionId);
       socket.join(connectionId);
     });
     socket.on("sendMessage", async ({ from, to, message, connectionId }) => {
