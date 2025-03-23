@@ -1,9 +1,11 @@
 const express = require("express");
 const PostModal = require("../models/Post");
 const Notification = require("../models/Notification");
+const FeedModel = require("../models/feed");
 const PostRouter = express.Router();
 
 const ALLOWED_DATA = "firstName lastName photoURL";
+const ALLOWED_POST_DATA = "feedContent";
 PostRouter.post("/post/send/:postId", async (req, res) => {
   const { postId } = req.params;
   const { from, to } = req.body;
@@ -81,12 +83,24 @@ PostRouter.get("/post/get/notifications/:userId", async (req, res) => {
   try {
     const notificationData = await Notification.findOne({
       to: userId,
-    }).populate("notifications.from", ALLOWED_DATA);
+    })
+      .populate("notifications.from", ALLOWED_DATA)
+      .populate("notifications.post", ALLOWED_POST_DATA);
     if (notificationData?.length != 0) {
       res.json({ messageType: "S", data: notificationData });
     } else {
       res.json({ messageType: "S", data: [] });
     }
+  } catch (err) {
+    res.status(400).json({ messageType: "E", message: err.message });
+  }
+});
+
+PostRouter.get("/post/get/postData/:postId", async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const response = await FeedModel.findOne({ _id: postId });
+    res.json({ messageType: "S", data: response });
   } catch (err) {
     res.status(400).json({ messageType: "E", message: err.message });
   }

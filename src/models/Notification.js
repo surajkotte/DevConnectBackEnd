@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const feedModel = require("./feed");
+const FeedModel = require("./feed");
 const User = require("./user");
 const NotificationStructSchema = new mongoose.Schema({
   from: {
@@ -9,7 +9,7 @@ const NotificationStructSchema = new mongoose.Schema({
   },
   post: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "feedModel",
+    ref: "FeedModel",
     required: true,
   },
   isRead: {
